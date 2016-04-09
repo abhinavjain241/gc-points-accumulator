@@ -1,6 +1,6 @@
 # gc-points-accumulator _WIP_
 
-> This will probably create an API that can publish the results of events, from facebook posts by Scholars Avenue, Awaaz, etc.
+> This will probably culminate in an API that can return the points of halls and the results of events, from Facebook posts by Scholars Avenue, Awaaz, etc.
 
 ## References
 
