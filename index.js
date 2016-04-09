@@ -124,6 +124,16 @@ var options = {
 							/choreography/i,
 							/(hindi|english|bengali)\sdramatics/i];
 
+					var techEventList = [/opensoft/i,
+							/hardware\smodelling/i,
+							/chemquest/i,
+							/case\sstudy/i,
+							/maths\solympiad/i,
+							/data\sanalytics/i,
+							/tech\squiz/i,
+							/biz\squiz/i,
+							/product\sdesign/i];
+
 					for(i in gc_announcements) {
 						console.log("----------------------------");
 						message = gc_announcements[i];
