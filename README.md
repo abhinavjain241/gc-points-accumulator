@@ -2,6 +2,7 @@
 
 > This will probably culminate in an API that can return the points of halls and the results of events, from Facebook posts by Scholars Avenue, Awaaz, etc.
 
+Sample output for now: [here](https://icyflame.github.io/gc-points-accumulator/index.txt)
 
 ## TODO
 
