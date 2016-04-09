@@ -1,0 +1,73 @@
+100 posts scraped!
+30
+30
+New posts since the last scraping output. Checking how many new posts were added since.
+95 new posts were found since the last scrape
+45 GC posts were found. Written to gc_posts.json.
+12 posts found with GC announcements
+----------------------------
+Gold: LBS
+Silver: RP
+Bronze: SN
+----------------------------
+----------------------------
+Gold: Nehru
+Silver: Patel
+Bronze: LLR
+Event: WESTERN GROUPS
+----------------------------
+----------------------------
+Gold: Patel
+Silver: Nehru
+Bronze: RK
+Event: What's the Good Word
+----------------------------
+----------------------------
+Gold: RP
+Silver: NH
+Bronze: AZ
+----------------------------
+----------------------------
+Gold: Nehru
+Silver: RK
+Bronze: Azad
+Event: Bengali Dramatics
+----------------------------
+----------------------------
+Gold: RP
+Silver: RK
+Bronze: Patel
+----------------------------
+----------------------------
+Gold: Nehru
+Silver: RP
+Bronze: Patel
+----------------------------
+----------------------------
+Gold: Nehru
+Silver: RP
+Bronze: Patel
+----------------------------
+----------------------------
+Gold: RK
+Silver: Nehru
+Bronze: LBS
+Event: Hindi elocution
+----------------------------
+----------------------------
+Gold: Patel
+Silver: Nehru
+Bronze: LBS
+----------------------------
+----------------------------
+Gold: HJB
+Silver: Nehru
+Bronze: LBS
+----------------------------
+----------------------------
+Gold: Nehru
+Silver: LBS
+Bronze: LLR
+Event: EASTERN GROUPS
+----------------------------
+Written the latest POST id to the LATEST_POST file
