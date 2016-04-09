@@ -33,11 +33,14 @@ var options = {
 
 			fs.writeFile('posts.json', posts);
 
+			fs.writeFileSync(LATEST_POST_FILENAME, posts.data[95].id);
+
 			// check for the newer posts as compared to the last scrape
 			if(fs.existsSync(LATEST_POST_FILENAME)) {
 				latest_post = fs.readFileSync(LATEST_POST_FILENAME).toString();
 				console.log(latest_post.length);
 				console.log(posts.data[0].id.length);
+
 				if(posts.data[0].id === latest_post) {
 					console.log('All the posts scrapped and analysed.');
 					process.exit(0);
@@ -65,8 +68,8 @@ var options = {
 								/Technology/i,
 								/Sports/i ];
 						for(j in re_list) {
-							console.log(new_posts_since_last[i].message);
-							console.log(typeof(new_posts_since_last[i].message));
+							//console.log(new_posts_since_last[i].message);
+							//console.log(typeof(new_posts_since_last[i].message));
 							if(new_posts_since_last[i].message) {
 								if(new_posts_since_last[i].message.match(re_list[j])) {
 									gc_posts.push(new_posts_since_last[i]);
@@ -81,7 +84,43 @@ var options = {
 
 					fs.writeFileSync('gc_posts.json', JSON.stringify(gc_posts_messages, null, 4));
 
-					fs.writeFileSync(LATEST_POST_FILENAME, posts.data[0].id);
+					// find the posts that actually make an announcement about medals
+
+					var gc_announcements = [];
+
+					for(i in gc_posts_messages) {
+						gold = /Gold/i;
+						silver = /Silver/i;
+						bronze = /Bronze/i;
+
+						post_message = gc_posts_messages[i];
+
+						if(post_message.match(gold) && post_message.match(silver) && post_message.match(bronze)) {
+							gc_announcements.push(post_message);
+						}
+					}
+
+					console.log(gc_announcements.length + " posts found with GC announcements");
+
+					fs.writeFileSync('gc_announcements.json', gc_announcements);
+
+					for(i in gc_announcements) {
+						message = gc_announcements[i];
+
+						// find the halls that won each of the medals
+						// check for the colon and the hyphen regexes,
+						// which seem to be the most commonly used by TSA
+
+						gold = /Gold\s{0,}[:-]\s{0,}([a-z]+)/i;
+						silver = /Silver\s{0,}[:-]\s{0,}([a-z]+)/i;
+						bronze = /Bronze\s{0,}[:-]\s{0,}([a-z]+)/i;
+
+						regexList = [gold, silver, bronze];
+
+						for(j in regexList) {
+							console.log((j == 0 ? "Gold" : (j == 1 ? "Silver" : "Bronze")) + ": " + message.match(regexList[j])[1]);
+						}
+					}
 
 				}
 
