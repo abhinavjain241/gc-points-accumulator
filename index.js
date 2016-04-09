@@ -59,14 +59,15 @@ var options = {
 
 					var gc_posts = []; // list of the complete post
 					var gc_posts_messages = []; // list of status messages only
+					var re_list = [/Soc-cult/i, 
+							/Social\scultural/i,
+							/Tech/i,
+							/Technology/i,
+							/Sports/i,
+								/GC/i, 
+							];
 
 					for(i in new_posts_since_last) {
-						var re_list = [/Soc-cult/i, 
-							/GC/i, 
-								/Tech/i,
-								/Social cultural/i,
-								/Technology/i,
-								/Sports/i ];
 						for(j in re_list) {
 							//console.log(new_posts_since_last[i].message);
 							//console.log(typeof(new_posts_since_last[i].message));
@@ -104,22 +105,49 @@ var options = {
 
 					fs.writeFileSync('gc_announcements.json', gc_announcements);
 
+					// now, in each announcement find the medal winners
+					// and the event that it corresponds to
+
+					var gold = /Gold\s{0,}[:-]\s{0,}([a-z]+)/i;
+					var silver = /Silver\s{0,}[:-]\s{0,}([a-z]+)/i;
+					var bronze = /Bronze\s{0,}[:-]\s{0,}([a-z]+)/i;
+					var socCultEventList = [/cartooning/i, 
+							/collaging/i, 
+							/postering/i, 
+							/thermocol\sand\sclay\smodelling/i,
+							/debate/i,
+							/(english|hindi|bengali)\selocution/i,
+							/general\squiz/i,
+							/what\'s\sthe\sgood\sword/i,
+							/(western|eastern)\s(groups{0,}|vocals{0,}|instrumentals{0,})/i,
+							/dumb\scharades/i,
+							/choreography/i,
+							/(hindi|english|bengali)\sdramatics/i];
+
 					for(i in gc_announcements) {
+						console.log("----------------------------");
 						message = gc_announcements[i];
 
 						// find the halls that won each of the medals
 						// check for the colon and the hyphen regexes,
 						// which seem to be the most commonly used by TSA
 
-						gold = /Gold\s{0,}[:-]\s{0,}([a-z]+)/i;
-						silver = /Silver\s{0,}[:-]\s{0,}([a-z]+)/i;
-						bronze = /Bronze\s{0,}[:-]\s{0,}([a-z]+)/i;
 
 						regexList = [gold, silver, bronze];
 
 						for(j in regexList) {
 							console.log((j == 0 ? "Gold" : (j == 1 ? "Silver" : "Bronze")) + ": " + message.match(regexList[j])[1]);
 						}
+
+						if(message.match(re_list[0]) || message.match(re_list[1])) {
+							for(j in socCultEventList) {
+								if(message.match(socCultEventList[j])) {
+									console.log("Event: " + message.match(socCultEventList[j])[0]);
+								}
+							}
+						}
+						console.log("----------------------------");
+
 					}
 
 				}
