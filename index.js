@@ -64,7 +64,7 @@ var options = {
 							/Tech/i,
 							/Technology/i,
 							/Sports/i,
-								/GC/i, 
+							/GC/i, 
 							];
 
 					for(i in new_posts_since_last) {
@@ -134,6 +134,21 @@ var options = {
 							/biz\squiz/i,
 							/product\sdesign/i];
 
+					var sportsEventList = [/athletics/i,
+							/aquatics/i,
+							/badminton/i,
+							/lawn\stennis/i,
+							/table\stennis/i,
+							/chess/i,
+							/bridge/i,
+							/basketball/i,
+							/cricket/i,
+							/hockey/i,
+							/squash/i,
+							/volleyball/i,
+							/weightlifting/i,
+							/volleyball/i];
+
 					for(i in gc_announcements) {
 						console.log("----------------------------");
 						message = gc_announcements[i];
@@ -149,10 +164,42 @@ var options = {
 							console.log((j == 0 ? "Gold" : (j == 1 ? "Silver" : "Bronze")) + ": " + message.match(regexList[j])[1]);
 						}
 
-						if(message.match(re_list[0]) || message.match(re_list[1])) {
-							for(j in socCultEventList) {
-								if(message.match(socCultEventList[j])) {
-									console.log("Event: " + message.match(socCultEventList[j])[0]);
+						var event_found = false;
+						
+						if(message.match(regexList[0]) || message.match(regexList[1])) {
+						for(j in socCultEventList) {
+							if(message.match(socCultEventList[j])) {
+								console.log("Event: " + message.match(socCultEventList[j])[0]);
+								event_found = true;
+								break;
+							}
+						}
+						} else {
+							if(message.match(regexList[2]) || message.match(regexList[3])) {
+								for(j in techEventList) {
+									if(message.match(techEventList[j])) {
+										console.log("Event: " + message.match(techEventList[j])[0]);
+										event_found = true;
+										break;
+									}
+								}
+							} else {
+								for(j in sportsEventList) {
+									if(message.match(sportsEventList[j])) {
+										console.log("Event: " + message.match(sportsEventList[j])[0]);
+										event_found = true;
+										break;
+									}
+								}
+							}
+						}
+
+						if(!event_found) {
+							for(j in techEventList) {
+								if(message.match(techEventList[j])) {
+									console.log("Event: " + message.match(techEventList[j])[0]);
+									event_found = true;
+									break;
 								}
 							}
 						}

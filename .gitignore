@@ -1,3 +1,4 @@
 latest_post_id.txt
 *.json
+!package.json
 .env
