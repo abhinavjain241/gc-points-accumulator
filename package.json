@@ -1,0 +1,15 @@
+{
+  "name": "gc-points-accumulator",
+  "version": "1.0.0",
+  "description": "> This will probably culminate in an API that can publish the results of events, from facebook posts by Scholars Avenue, Awaaz, etc.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Siddharth Kannan <kannan.siddharth12@gmail.com> (http://icyflame.github.io)",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^2.0.0",
+    "fbgraph": "^1.1.0"
+  }
+}
