@@ -17,6 +17,7 @@ Sample output for now: [here](https://icyflame.github.io/gc-points-accumulator/i
 
 ## References
 
+- [getting a fb graph api access code](http://stackoverflow.com/a/16054555/2080089)
 - [facebook graph api](https://developers.facebook.com/docs/graph-api/using-graph-api)
 - [facebook graph api /{page-id} endpoint](https://developers.facebook.com/docs/graph-api/reference/v2.5/page/feed)
 - [facebook graph api access codes](https://developers.facebook.com/tools/access_token/)
