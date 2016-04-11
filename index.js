@@ -5,6 +5,8 @@ require('dotenv').config();
 
 var graph = require('fbgraph');
 var fs = require('fs');
+var Log = require('log');
+var log = new Log('debug');
 
 // constants
 
@@ -21,7 +23,7 @@ graph.setAccessToken(access_token);
 // module begin
 
 var options = {
-	timeout:  3000, 
+	timeout: 3000, 
 	pool: { maxSockets:  Infinity },
 	headers:  { connection:  "keep-alive" }
 };
@@ -30,10 +32,10 @@ var options = {
 .setOptions(options)
 	.get("/scholarsavenue/posts?limit=" + SINGLE_REQUEST_MAX_POSTS, function(err, posts) {
 		if(err) {
-			console.error(err);
+			log.error(err);
 		} else {
-			//console.log(res);
-			console.log(posts.data.length + " posts scraped!");
+			//log.info(res);
+			log.info(posts.data.length + " posts scraped!");
 
 			fs.writeFile('posts.json', posts);
 
@@ -42,14 +44,14 @@ var options = {
 			// check for the newer posts as compared to the last scrape
 			if(fs.existsSync(LATEST_POST_FILENAME)) {
 				latest_post = fs.readFileSync(LATEST_POST_FILENAME).toString();
-				console.log(latest_post.length);
-				console.log(posts.data[0].id.length);
+				log.info(latest_post.length);
+				log.info(posts.data[0].id.length);
 
 				if(posts.data[0].id === latest_post) {
-					console.log('All the posts scrapped and analysed.');
+					log.info('All the posts scrapped and analysed.');
 					process.exit(0);
 				} else {
-					console.log('New posts since the last scraping output. Checking how many new posts were added since.');
+					log.info('New posts since the last scraping output. Checking how many new posts were added since.');
 
 					// get the new posts since the last scrape
 
@@ -57,26 +59,34 @@ var options = {
 
 					for(i=0; posts.data[i].id !== latest_post; ++i) new_posts_since_last.push(posts.data[i]);
 
-					console.log(new_posts_since_last.length + " new posts were found since the last scrape");
+					log.info(new_posts_since_last.length + " new posts were found since the last scrape");
 
 					// now find out which of the new posts are actually related to one of the GCs
 
 					var gc_posts = []; // list of the complete post
 					var gc_posts_messages = []; // list of status messages only
-					var re_list = [/Soc-cult/i, 
-							/Social\scultural/i,
+
+					// TODO : Move all soc-cult to one regex pattern and remove the which_gc_regex_list
+					//	references in the next few sections.
+					var which_gc_regex_list = [/Soc-cult/i, 
+							/(Social\scultural|Social\s{0,}and\s{0,}cultural)/i,
 							/Tech/i,
 							/Technology/i,
 							/Sports/i,
 							/GC/i, 
 							];
+					var which_gc_regex_list_1 = {
+						"soccult": [/Soc-cult/i, /Social\scultural/i, /Social\sand\scultural/i],
+						"tech": [/Technology/i, /tech/i],
+						"sports": [/Sports/i]
+					};
 
 					for(i in new_posts_since_last) {
-						for(j in re_list) {
-							//console.log(new_posts_since_last[i].message);
-							//console.log(typeof(new_posts_since_last[i].message));
+						for(j in which_gc_regex_list) {
+							//log.info(new_posts_since_last[i].message);
+							//log.info(typeof(new_posts_since_last[i].message));
 							if(new_posts_since_last[i].message) {
-								if(new_posts_since_last[i].message.match(re_list[j])) {
+								if(new_posts_since_last[i].message.match(which_gc_regex_list[j])) {
 									gc_posts.push(new_posts_since_last[i]);
 									gc_posts_messages.push(new_posts_since_last[i].message);
 									break;
@@ -85,7 +95,7 @@ var options = {
 						}
 					}
 
-					console.log(gc_posts.length + ' GC posts were found. Written to gc_posts.json.');
+					log.info(gc_posts.length + ' GC posts were found. Written to gc_posts.json.');
 
 					fs.writeFileSync('gc_posts.json', JSON.stringify(gc_posts_messages, null, 4));
 
@@ -105,23 +115,33 @@ var options = {
 						}
 					}
 
-					console.log(gc_announcements.length + " posts found with GC announcements");
+					log.info(gc_announcements.length + " posts found with GC announcements");
 
 					fs.writeFileSync('gc_announcements.json', gc_announcements);
 
 					// now, in each announcement find the medal winners
 					// and the event that it corresponds to
 
+					// list of objects that will contain the event and medal winners
+					// each object will have four keys: 
+					//	gold
+					//	silver
+					//	bronze
+					//	event
+					// All values will be lowercase
+					var announcements_to_add = []; 
+
 					var gold = /Gold\s{0,}[:-]\s{0,}([a-z]+)/i;
 					var silver = /Silver\s{0,}[:-]\s{0,}([a-z]+)/i;
 					var bronze = /Bronze\s{0,}[:-]\s{0,}([a-z]+)/i;
+
 					var socCultEventList = [/cartooning/i, 
 							/collaging/i, 
 							/postering/i, 
 							/thermocol\sand\sclay\smodelling/i,
 							/debate/i,
 							/(english|hindi|bengali)\selocution/i,
-							/general\squiz/i,
+							/(general)?\s{0,}quiz/i, // written both as quiz and general quiz
 							/what\'s\sthe\sgood\sword/i,
 							/(western|eastern)\s(groups{0,}|vocals{0,}|instrumentals{0,})/i,
 							/dumb\scharades/i,
@@ -140,9 +160,10 @@ var options = {
 
 					var sportsEventList = [/athletics/i,
 							/aquatics/i,
+							/water\s{0,}polo/i,
 							/badminton/i,
-							/lawn\stennis/i,
-							/table\stennis/i,
+							/lawn\s{0,}tennis/i,
+							/table\s{0,}tennis/i,
 							/chess/i,
 							/bridge/i,
 							/basketball/i,
@@ -154,8 +175,10 @@ var options = {
 							/volleyball/i];
 
 					for(i in gc_announcements) {
-						console.log("----------------------------");
+						log.debug("----------------------------");
 						message = gc_announcements[i];
+
+						this_announcement_object = {};
 
 						// find the halls that won each of the medals
 						// check for the colon and the hyphen regexes,
@@ -164,33 +187,45 @@ var options = {
 
 						regexList = [gold, silver, bronze];
 
+						this_announcement_object["gold"] = message.match(gold)[1];
+						this_announcement_object["silver"] = message.match(silver)[1];
+						this_announcement_object["bronze"] = message.match(bronze)[1];
+
+						// just for printing to the console
+
 						for(j in regexList) {
-							console.log((j == 0 ? "Gold" : (j == 1 ? "Silver" : "Bronze")) + ": " + message.match(regexList[j])[1]);
+							log.debug((j == 0 ? "Gold" : (j == 1 ? "Silver" : "Bronze")) + ": " + message.match(regexList[j])[1]);
 						}
 
 						var event_found = false;
-						
-						if(message.match(regexList[0]) || message.match(regexList[1])) {
-						for(j in socCultEventList) {
-							if(message.match(socCultEventList[j])) {
-								console.log("Event: " + message.match(socCultEventList[j])[0]);
-								event_found = true;
-								break;
+
+						if(message.match(which_gc_regex_list[0]) || message.match(which_gc_regex_list[1])) {
+							for(j in socCultEventList) {
+								var match_obj = message.match(socCultEventList[j]);
+								if(match_obj) {
+									log.debug("Event: " + match_obj[0]);
+									this_announcement_object["event"] = match_obj[0];
+									event_found = true;
+									break;
+								}
 							}
-						}
 						} else {
-							if(message.match(regexList[2]) || message.match(regexList[3])) {
+							if(message.match(which_gc_regex_list[2]) || message.match(which_gc_regex_list[3])) {
 								for(j in techEventList) {
-									if(message.match(techEventList[j])) {
-										console.log("Event: " + message.match(techEventList[j])[0]);
+									var match_obj = message.match(techEventList[j])
+									if(match_obj) {
+										log.debug("Event: " + match_obj[0]);
+										this_announcement_object["event"] = match_obj[0];
 										event_found = true;
 										break;
 									}
 								}
 							} else {
 								for(j in sportsEventList) {
-									if(message.match(sportsEventList[j])) {
-										console.log("Event: " + message.match(sportsEventList[j])[0]);
+									var match_obj = message.match(sportsEventList[j])
+									if(match_obj) {
+										log.debug("Event: " + match_obj[0]);
+										this_announcement_object["event"] = match_obj[0];
 										event_found = true;
 										break;
 									}
@@ -198,16 +233,7 @@ var options = {
 							}
 						}
 
-						if(!event_found) {
-							for(j in techEventList) {
-								if(message.match(techEventList[j])) {
-									console.log("Event: " + message.match(techEventList[j])[0]);
-									event_found = true;
-									break;
-								}
-							}
-						}
-						console.log("----------------------------");
+						log.debug("----------------------------");
 
 					}
 
@@ -217,6 +243,6 @@ var options = {
 			// write the latest post to the file
 			// (this should happen only once)
 			fs.writeFileSync(LATEST_POST_FILENAME, posts.data[0].id);
-			console.log("Written the latest POST id to the LATEST_POST file");
+			log.info("Written the latest POST id to the LATEST_POST file");
 		}
 	});
